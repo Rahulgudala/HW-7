@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bible Verse App</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        input {
+            padding: 8px;
+            width: 80%;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .verse-box {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📖 Bible Verse App</h1>
+
+        <button onclick="fetchRandomVerse()">Get Random Verse</button>
+        <div class="verse-box" id="random-verse"></div>
+
+        <h2>Search for a Specific Verse</h2>
+        <input type="text" id="verse-input" placeholder="Enter verse (e.g., John 3:16)">
+        <button onclick="fetchSpecificVerse()">Get Verse</button>
+        <div class="verse-box" id="specific-verse"></div>
+    </div>
+
+    <script>
+        async function fetchRandomVerse() {
+            try {
+                const response = await axios.get("https://labs.bible.org/api/?passage=random&type=json");
+                const verseData = response.data[0];
+                document.getElementById("random-verse").innerText = 
+                    `${verseData.bookname} ${verseData.chapter}:${verseData.verse} - ${verseData.text}`;
+            } catch (error) {
+                console.error("Error fetching random verse:", error);
+                document.getElementById("random-verse").innerText = "Failed to load verse.";
+            }
+        }
+
+        async function fetchSpecificVerse() {
+            const reference = document.getElementById("verse-input").value.trim();
+            if (!reference) {
+                document.getElementById("specific-verse").innerText = "Please enter a verse reference.";
+                return;
+            }
+
+            try {
+                const response = await axios.get(`https://labs.bible.org/api/?passage=${encodeURIComponent(reference)}&type=json`);
+                if (response.data.length > 0) {
+                    const verseData = response.data[0];
+                    document.getElementById("specific-verse").innerText = 
+                        `${verseData.bookname} ${verseData.chapter}:${verseData.verse} - ${verseData.text}`;
+                } else {
+                    document.getElementById("specific-verse").innerText = "No verse found for the given reference.";
+                }
+            } catch (error) {
+                console.error("Error fetching specific verse:", error);
+                document.getElementById("specific-verse").innerText = "Failed to fetch the verse.";
+            }
+        }
+    </script>
+
+</body>
+</html>
